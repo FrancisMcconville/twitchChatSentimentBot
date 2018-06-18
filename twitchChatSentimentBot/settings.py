@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'sentimentBot',
 ]
 
 MIDDLEWARE = [
@@ -118,3 +119,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+TWITCH_BOT_SETTINGS = {
+    'host': 'irc.twitch.tv',
+    'port': 6667,
+    'username': 'roboparo',
+    'oauth': 'oauth:tcwtphl4oi25bk2uduzo5twsys5wq8',
+    'channel': '#dota2ruhub',
+}
