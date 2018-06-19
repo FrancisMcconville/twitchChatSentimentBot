@@ -8,7 +8,8 @@ from sentimentBot.signals import twitch_message
 
 class TwitchBot(object):
     running_bot = False
-    message_regex = re.compile(r'^:([a-zA-Z0-9_]+)!.+@.+ PRIVMSG (#[a-zA-Z0-9_]+) :(.+)$')
+    message_regex = re.compile(r':([a-zA-Z0-9_]+)!.+@.+ PRIVMSG (#[a-zA-Z0-9_]+) :([^\r]+)')
+    pool_rate = 5
 
     def __init__(self, username, oauth, channel=None, **kwargs):
         super().__init__()
@@ -36,32 +37,20 @@ class TwitchBot(object):
         while response.find('End of /NAMES list') == -1:
             response = self.socket.recv(1024).decode("utf-8")
             response = response.strip('\r\n')
-        print("joined %s" % channel)
+        print("User: '%(user)s' has joined Channel '%(channel)s'" % {'user': self.username, 'channel': channel})
 
     def chat(self, message):
         self.socket.send("PRIVMSG {0} :{1}\r\n".format(self.channel, message).encode('utf-8'))
 
     def listen(self):
         while True:
-            response = self.socket.recv(1024).decode("utf-8").split('\r\n')
-            for line in response:
-                if line == "PING: tmi.twitch.tv":
-                    self.socket.send("PONG: tmi.twitch.tv\r\n".encode('utf-8'))
-                else:
-                    self.parse_message(line)
-            time.sleep(0.5)
-
-    def parse_message(self, message):
-        if not message:
-            return
-        if message[:1] != ':':
-            return
-
-        matches = self.message_regex.match(message)
-        if matches:
+            response = self.socket.recv(1024).decode("utf-8")
+            # TODO PONG!
             twitch_message.send(
                 sender=self.__class__,
-                user=matches.group(1),
-                channel=matches.group(2),
-                message=matches.group(3)
+                messages=[
+                    {'user': x[0], 'channel': x[1], 'message': x[2]}
+                    for x in self.message_regex.findall(response)],
             )
+            time.sleep(self.pool_rate)
+
