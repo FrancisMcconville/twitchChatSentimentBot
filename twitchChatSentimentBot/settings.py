@@ -127,3 +127,33 @@ TWITCH_BOT_SETTINGS = {
     'oauth': 'oauth:tcwtphl4oi25bk2uduzo5twsys5wq8',
     'channel': '#beyondthesummit',
 }
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+        },
+    },
+    'handlers': {
+        'file_handler_chat_log': {
+            'class':'logging.handlers.RotatingFileHandler',
+            'maxBytes': 1024*1024*5,  # 5 MB
+            'backupCount': 5,
+            'formatter': 'standard',
+            'level': 'DEBUG',
+            'filename': os.path.join(BASE_DIR, 'chat_log.log'),
+        },
+        'std_log': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'twitch': {
+            'handlers': ['file_handler_chat_log', 'std_log'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

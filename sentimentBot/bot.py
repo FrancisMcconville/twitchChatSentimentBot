@@ -10,6 +10,7 @@ class TwitchBot(object):
     running_bot = False
     message_regex = re.compile(r':([a-zA-Z0-9_]+)!.+@.+ PRIVMSG (#[a-zA-Z0-9_]+) :([^\r]+)')
     pool_rate = 5
+    users = {}
 
     def __init__(self, username, oauth, channel=None, **kwargs):
         super().__init__()
@@ -47,7 +48,7 @@ class TwitchBot(object):
             response = self.socket.recv(1024).decode("utf-8")
             # TODO PONG!
             twitch_message.send(
-                sender=self.__class__,
+                sender=self,
                 messages=[
                     {'user': x[0], 'channel': x[1], 'message': x[2]}
                     for x in self.message_regex.findall(response)],
