@@ -155,5 +155,10 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'default': {
+            'handlers': ['std_log'],
+            'level': 'DEBUG',
+            'propagate': True
+        }
     },
 }
