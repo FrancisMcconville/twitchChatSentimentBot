@@ -8,23 +8,22 @@ from django.db import migrations
 twitch_emotes = {
     '<3': 0.4,
     '4head': 1,
-    'babyrage': -1.2,
+    'babyrage': -0.7,
     'biblethump': -0.7,
-    'blessrng': 0.4,
-    'bloodtrail': 0.3,
+    'blessrng': 0.3,
+    'bloodtrail': 0.7,
     'coolstorybob': -1,
-    'residentsleeper': -1.5,
-    'kappa': -1,
-    'lul': -0.2,
-    'pogchamp': 2,
+    'residentsleeper': -1,
+    'kappa': -0.3,
+    'lul': -0.3,
+    'pogchamp': 1.5,
     'heyguys': 1,
-    'trihard': -0.7,
-    'wutface': -2,
+    'wutface': -1.5,
     'kreygasm': 1,
-    'seemsgood': 0.5,
-    'monkas': 1.5,
+    'seemsgood': 0.7,
     'kappapride': 0.7,
-    'feelsgoodman': 1.5
+    'feelsgoodman': 1,
+    'notlikethis': -1
 }
 
 

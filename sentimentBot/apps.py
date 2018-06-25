@@ -9,7 +9,7 @@ class SentimentbotConfig(AppConfig):
     verbose_name = "Sentiment Bot"
 
     def ready(self):
-        from sentimentBot.message_parsers import sentiment_meter, hype_meter, active_users
+        import sentimentBot.message_parsers
         if 'runserver' not in sys.argv:
             return True
         bot = TwitchBot(**TWITCH_BOT_SETTINGS)

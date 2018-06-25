@@ -151,7 +151,7 @@ LOGGING = {
     },
     'loggers': {
         'twitch': {
-            'handlers': ['file_handler_chat_log', 'std_log'],
+            'handlers': ['file_handler_chat_log'],
             'level': 'DEBUG',
             'propagate': True,
         },
@@ -161,4 +161,9 @@ LOGGING = {
             'propagate': True
         }
     },
+}
+
+# {str(word): int(positivity) with positivity ranging from very negative -3 to very positive +3
+TWITCH_LEXICON = {
+    'kys': -3
 }

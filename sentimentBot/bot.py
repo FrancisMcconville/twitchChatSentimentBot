@@ -1,16 +1,20 @@
 import re
 import socket
 import time
-from threading import Thread
+from threading import Thread, Lock
 from twitchChatSentimentBot.settings import TWITCH_BOT_SETTINGS
 from sentimentBot.signals import twitch_message
+from copy import copy
 
 
 class TwitchBot(object):
     running_bot = False
     message_regex = re.compile(r':([a-zA-Z0-9_]+)!.+@.+ PRIVMSG (#[a-zA-Z0-9_]+) :([^\r]+)')
-    pool_rate = 5
+    ping_regex = re.compile(r"PING :tmi\.twitch\.tv")
+    poll_rate = 5
     users = {}
+    pending_messages = []
+    pooling_thread = None
 
     def __init__(self, username, oauth, channel=None, **kwargs):
         super().__init__()
@@ -18,6 +22,19 @@ class TwitchBot(object):
         self.username = username
         self.oauth = oauth
         self.socket = socket.socket()
+        self.message_lock = Lock()
+        self.message_alert_thread = Thread(target=self.check_messages, daemon=True)
+        self.message_alert_thread.start()
+
+    def check_messages(self):
+        while True:
+            with self.message_lock:
+                twitch_message.send(
+                    sender=self,
+                    messages=copy(self.pending_messages),
+                )
+                self.pending_messages = []
+            time.sleep(self.poll_rate)
 
     def start(self):
         if not self.__class__.running_bot:
@@ -45,13 +62,20 @@ class TwitchBot(object):
 
     def listen(self):
         while True:
-            response = self.socket.recv(1024).decode("utf-8")
-            # TODO PONG!
-            twitch_message.send(
-                sender=self,
-                messages=[
+            try:
+                response = self.socket.recv(1024).decode("utf-8")
+            except UnicodeDecodeError:
+                response = ''
+
+            if self.ping_regex.match(response):
+                self.send_pong()
+            with self.message_lock:
+                self.pending_messages.extend([
                     {'user': x[0], 'channel': x[1], 'message': x[2]}
-                    for x in self.message_regex.findall(response)],
-            )
-            time.sleep(self.pool_rate)
+                    for x in self.message_regex.findall(response)
+                ])
+            time.sleep(1)
+
+    def send_pong(self):
+        self.socket.send(bytes("PONG\n", encoding="utf-8"))
 
