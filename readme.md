@@ -29,7 +29,7 @@ Basic Lexicon contains following values:
 Chat messages are logged to chat_log.log, along with a sentiment rating for each message in the format "#channel [sentiment] user: message" eg:\
 `[DEBUG] twitch: #beyondthesummit: [-0.6037] hayashidayuki: RIGGED GAME BibleThump` 
 
-###Installation
+##Installation
 Requires Python3.5 and PIP. Instructions are written for Ubuntu 16.04 command line
 - Install requirements `sudo pip install -r /path/to/project/requirements.txt`
 - Run migrations `python3 /path/to/project/manage.py migrate`
