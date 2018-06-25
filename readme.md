@@ -1,5 +1,5 @@
 # Twitch Chat Sentiment Analyzer
-Analyzes twitch chat messages for their sentiment and hype. \
+Django app which analyzes twitch chat messages for their sentiment and hype. \
 Written for python 3.5, using Vaders sentiment analysis \
 \
 Django project must be run with --noreload flag: `manage.py runserver --noreload`\
@@ -28,3 +28,9 @@ Basic Lexicon contains following values:
     
 Chat messages are logged to chat_log.log, along with a sentiment rating for each message in the format "#channel [sentiment] user: message" eg:\
 `[DEBUG] twitch: #beyondthesummit: [-0.6037] hayashidayuki: RIGGED GAME BibleThump` 
+
+###Installation
+Requires Python3.5 and PIP. Instructions are written for Ubuntu 16.04 command line
+- Install requirements `sudo pip install -r /path/to/project/requirements.txt`
+- Run migrations `python3 /path/to/project/manage.py migrate`
+- Runserver on port 8000 `python3 /path/to/project/manage.py runserver 0.0.0.0:8000 --noreload`
