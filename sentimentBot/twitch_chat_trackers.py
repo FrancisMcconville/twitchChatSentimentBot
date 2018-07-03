@@ -1,24 +1,15 @@
-from django.dispatch import receiver
-from sentimentBot.signals import twitch_message
-import logging
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from sentimentBot.models import TwitchEmote
 from numpy import mean
 from twitchChatSentimentBot.settings import TWITCH_LEXICON
 
-logger = logging.getLogger('twitch')
 
-
-class TwitchSentimentAnalyser(SentimentIntensityAnalyzer):
-    instance = None
-    sentiment_value = 0
+class TwitchSentimentTracker(SentimentIntensityAnalyzer):
     min_cap, max_cap = -25, 25
 
-    @classmethod
-    def get_instance(cls):
-        if not cls.instance:
-            cls.instance = cls()
-        return cls.instance
+    def __init__(self):
+        self.sentiment_value = 0
+        super().__init__()
 
     def make_lex_dict(self):
         # Update lexicon with twitch emotes
@@ -27,27 +18,24 @@ class TwitchSentimentAnalyser(SentimentIntensityAnalyzer):
         lex.update(TWITCH_LEXICON)
         return lex
 
-    @classmethod
-    def update_sentiment(cls, value):
-        cls.sentiment_value += value
-        cls.sentiment_value = max(cls.sentiment_value, cls.min_cap)
-        cls.sentiment_value = min(cls.sentiment_value, cls.max_cap)
+    def update_sentiment(self, value):
+        self.sentiment_value += value
+        self.sentiment_value = max(self.sentiment_value, self.min_cap)
+        self.sentiment_value = min(self.sentiment_value, self.max_cap)
 
     @property
     def sentiment(self):
         value = self.sentiment_value
         return 'Positive' if value > 2.5 else 'Negative' if value < -2.5 else 'Neutral'
 
-    def __str__(self):
+    @property
+    def verbose_sentiment(self):
         return "%(value).2f%% %(sentiment)s" % {'value': self.sentiment_value * 4, 'sentiment': self.sentiment}
 
 
 class TwitchHypeTracker(object):
     """Tracks hype by number of messages received minus the average number of messages over a period of time"""
-    instance = None
-    hype_level = 0
     min_hype, max_hype = 0, 100
-    hype_log = [0] * 10
     hype_emojis = {
         0: '_(._.)_',
         10: 'ヽ(´ー｀)ﾉ',
@@ -58,11 +46,10 @@ class TwitchHypeTracker(object):
         90: '(╯°□°）╯︵ ┻━┻︵ヽ(`Д´)ﾉ︵ ┻━┻ (ノಠ益ಠ)ノ彡┻━┻'
     }
 
-    @classmethod
-    def get_instance(cls):
-        if not cls.instance:
-            cls.instance = cls()
-        return cls.instance
+    def __init__(self):
+        self.hype_level = 0
+        self.hype_log = [0] * 10
+        super().__init__()
 
     @property
     def hype_string(self):
@@ -87,28 +74,6 @@ class TwitchHypeTracker(object):
         self.hype_log.insert(0, hype_level)
         self._modify_hype(hype_level - average)
 
-    def __str__(self):
+    @property
+    def verbose_hype(self):
         return "hype: %(hype_level).2f%% %(hype)s" % {'hype_level': self.hype_level, 'hype': self.hype_string}
-
-
-@receiver(twitch_message)
-def hype_meter(sender, messages, **kwargs):
-    hype_tracker = TwitchHypeTracker.get_instance()
-    hype_tracker.update_hype(len(messages))
-    print(hype_tracker)
-
-
-@receiver(twitch_message)
-def sentiment_meter(sender, messages, **kwargs):
-    sentiment_analyzer = TwitchSentimentAnalyser.get_instance()
-    for message in messages:
-        message.update(sentiment_analyzer.polarity_scores(message['message']))
-        if message['compound'] != 0:
-            sentiment_analyzer.update_sentiment(message['compound'])
-    print(sentiment_analyzer)
-
-
-@receiver(twitch_message)
-def chat_log(sender, messages, **kwargs):
-    for line in messages:
-        logger.debug("%(channel)s: [%(compound)s] %(user)s: %(message)s" % line)

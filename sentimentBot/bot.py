@@ -2,12 +2,13 @@ import re
 import socket
 import time
 from sentimentBot.signals import twitch_message
+from sentimentBot.twitch_chat_trackers import TwitchSentimentTracker, TwitchHypeTracker
 from threading import Thread
 from twitchChatSentimentBot.utils.patterns import Borg
 from twitchChatSentimentBot.settings import TWITCH_BOT_SETTINGS
 
 
-class TwitchBot(Borg):
+class TwitchBot(Borg, TwitchHypeTracker, TwitchSentimentTracker):
     _message_regex = re.compile(r':([a-zA-Z0-9_]+)!.+@.+ PRIVMSG (#[a-zA-Z0-9_]+) :([^\r]+)')
     _ping_regex = re.compile(r"PING :tmi\.twitch\.tv")
     poll_rate = 2
