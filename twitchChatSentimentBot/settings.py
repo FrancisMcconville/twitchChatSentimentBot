@@ -125,7 +125,7 @@ TWITCH_BOT_SETTINGS = {
     'port': 6667,
     'username': 'roboparo',
     'oauth': 'oauth:tcwtphl4oi25bk2uduzo5twsys5wq8',
-    'channel': '#beyondthesummit',
+    'channel': '#admiralbulldog',
 }
 LOGGING = {
     'version': 1,

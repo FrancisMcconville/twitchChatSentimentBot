@@ -12,5 +12,4 @@ class SentimentbotConfig(AppConfig):
         import sentimentBot.message_parsers
         if 'runserver' not in sys.argv:
             return True
-        bot = TwitchBot(**TWITCH_BOT_SETTINGS)
-        bot.start()
+        bot = TwitchBot()
